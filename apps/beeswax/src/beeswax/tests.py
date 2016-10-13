@@ -82,7 +82,7 @@ from beeswax.server.dbms import QueryServerException
 from beeswax.server.hive_server2_lib import HiveServerClient,\
   PartitionKeyCompatible, PartitionValueCompatible, HiveServerTable,\
   HiveServerTColumnValue2
-from beeswax.test_base import BeeswaxSampleProvider, is_hive_on_spark, get_available_execution_engines
+from beeswax.test_base import BeeswaxSampleProvider, is_hive_on_spark, get_available_execution_engines, get_test_username
 from beeswax.hive_site import get_metastore, hiveserver2_jdbc_url
 
 
@@ -125,10 +125,10 @@ class TestBeeswaxWithHadoop(BeeswaxSampleProvider):
   requires_hadoop = True
 
   def setUp(self):
-    self.user = User.objects.get(username='test')
+    self.user = User.objects.get(username=get_test_username())
     add_to_group('test')
     self.db = dbms.get(self.user, get_query_server_config())
-    self.cluster.fs.do_as_user('test', self.cluster.fs.create_home_dir, '/user/test')
+    self.cluster.fs.do_as_user(get_test_username(), self.cluster.fs.create_home_dir, '/user/%s' % get_test_username())
 
   def _verify_query_state(self, state):
     """
@@ -1086,7 +1086,7 @@ for x in sys.stdin:
     # Already existing dir
     if not self.cluster.fs.exists(TARGET_DIR_ROOT):
       self.cluster.fs.mkdir(TARGET_DIR_ROOT)
-      self.cluster.fs.chown(TARGET_DIR_ROOT, user='test')
+      self.cluster.fs.chown(TARGET_DIR_ROOT, user=get_test_username())
     hql = "SELECT * FROM test"
     resp = _make_query(self.client, hql, wait=True, local=False, max=180.0, database=self.db_name)
     resp = save_and_verify(resp, TARGET_DIR_ROOT, verify=False)
@@ -2096,7 +2096,7 @@ def test_index_page():
 
 def test_history_page():
   client = make_logged_in_client()
-  test_user = User.objects.get(username='test')
+  test_user = User.objects.get(username=get_test_username())
 
   query, created = SavedQuery.objects.get_or_create(
     type=HQL,
@@ -2677,7 +2677,7 @@ class TestWithMockedServer(object):
 
     self.client = make_logged_in_client(is_superuser=False)
     self.client_not_me = make_logged_in_client(username='not_me', is_superuser=False, groupname='test')
-    self.user = User.objects.get(username='test')
+    self.user = User.objects.get(username=get_test_username())
     self.user_not_me = User.objects.get(username='not_me')
     grant_access("test", "test", "beeswax")
 
@@ -2972,7 +2972,7 @@ def search_log_line(expected_log, all_logs):
 
 def test_hiveserver2_get_security():
   make_logged_in_client()
-  user = User.objects.get(username='test')
+  user = User.objects.get(username=get_test_username())
   # Bad but easy mocking
   hive_site.get_conf()
 

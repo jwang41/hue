@@ -38,7 +38,7 @@ from beeswax.views import collapse_whitespace
 from beeswax.test_base import make_query, wait_for_query_to_finish, verify_history, get_query_server_config, fetch_query_result_data
 from beeswax.models import QueryHistory
 from beeswax.server import dbms
-from beeswax.test_base import BeeswaxSampleProvider
+from beeswax.test_base import BeeswaxSampleProvider, get_test_username
 
 
 LOG = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class TestMetastoreWithHadoop(BeeswaxSampleProvider):
   requires_hadoop = True
 
   def setUp(self):
-    user = User.objects.get(username='test')
+    user = User.objects.get(username=get_test_username())
     self.db = dbms.get(user, get_query_server_config())
 
     add_permission("test", "test", "write", "metastore")
