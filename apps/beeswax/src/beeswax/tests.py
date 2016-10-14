@@ -585,7 +585,7 @@ for x in sys.stdin:
 
 
   def _parallel_query_helper(self, i, result_holder, lock, num_tasks):
-    client = make_logged_in_client()
+    client = make_logged_in_client(username=get_test_username())
     try:
       q = "SELECT foo+" + str(i + 1) + " FROM test WHERE foo < 2"
       LOG.info("Starting " + str(i) + ": " + q)
@@ -1692,7 +1692,7 @@ for x in sys.stdin:
 
 
   def test_select_query_server(self):
-    c = make_logged_in_client()
+    c = make_logged_in_client(username=get_test_username())
     _make_query(c, 'SELECT bogus FROM test', database=self.db_name) # Improvement: mock another server
 
     history = beeswax.models.QueryHistory.objects.latest('id')
@@ -1728,7 +1728,7 @@ for x in sys.stdin:
 
 
   def test_list_design_pagination(self):
-    client = make_logged_in_client()
+    client = make_logged_in_client(username=get_test_username())
 
     _make_query(client, 'SELECT', name='my query history', submission_type='Save', database=self.db_name)
     design = SavedQuery.objects.get(name='my query history')
@@ -1747,7 +1747,7 @@ for x in sys.stdin:
 
 
   def test_get_table_sample(self):
-    client = make_logged_in_client()
+    client = make_logged_in_client(username=get_test_username())
 
     resp = client.get(reverse('beeswax:get_sample_data', kwargs={'database': self.db_name, 'table': 'test'}))
     json_resp = json.loads(resp.content)
@@ -1820,7 +1820,7 @@ for x in sys.stdin:
 
 
   def test_redacting_queries(self):
-    c = make_logged_in_client()
+    c = make_logged_in_client(username=get_test_username())
 
     old_policies = redaction.global_redaction_engine.policies
     redaction.global_redaction_engine.policies = [
@@ -2090,12 +2090,12 @@ def test_import_gzip_reader():
 
 def test_index_page():
   """Minimal test that index page renders."""
-  c = make_logged_in_client()
+  c = make_logged_in_client(username=get_test_username())
   c.get("/beeswax")
 
 
 def test_history_page():
-  client = make_logged_in_client()
+  client = make_logged_in_client(username=get_test_username())
   test_user = User.objects.get(username=get_test_username())
 
   query, created = SavedQuery.objects.get_or_create(
@@ -2675,7 +2675,7 @@ class TestWithMockedServer(object):
     dbms.DBMS_CACHE = {}
     dbms.HiveServer2Dbms = MockDbms
 
-    self.client = make_logged_in_client(is_superuser=False)
+    self.client = make_logged_in_client(username=get_test_username(), is_superuser=False)
     self.client_not_me = make_logged_in_client(username='not_me', is_superuser=False, groupname='test')
     self.user = User.objects.get(username=get_test_username())
     self.user_not_me = User.objects.get(username='not_me')
@@ -2971,7 +2971,7 @@ def search_log_line(expected_log, all_logs):
   return re.compile('%(expected_log)s' % {'expected_log': expected_log}).search(all_logs)
 
 def test_hiveserver2_get_security():
-  make_logged_in_client()
+  make_logged_in_client(username=get_test_username())
   user = User.objects.get(username=get_test_username())
   # Bad but easy mocking
   hive_site.get_conf()
@@ -3105,7 +3105,7 @@ def test_metastore_security():
 
 
 def test_close_queries_flag():
-  c = make_logged_in_client()
+  c = make_logged_in_client(username=get_test_username())
 
   finish = conf.CLOSE_QUERIES.set_for_testing(False)
   try:
@@ -3450,10 +3450,9 @@ def test_sasl_auth_in_large_download():
      hive_site.get_hiveserver2_authentication() != 'KERBEROS':
     raise SkipTest
 
-  client = make_logged_in_client(username="systest", groupname="systest", recreate=False, is_superuser=False)
-  user = User.objects.get(username='systest')
-  add_to_group('systest')
-  grant_access("systest", "systest", "beeswax")
+  client = make_logged_in_client(username=get_test_username(), groupname="systest", recreate=False, is_superuser=False)
+  user = User.objects.get(username=get_test_username())
+  grant_access(get_test_username(), "systest", "beeswax")
 
   desktop_conf.SASL_MAX_BUFFER.set_for_testing(2*1024*1024)
 

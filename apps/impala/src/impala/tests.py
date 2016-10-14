@@ -34,7 +34,7 @@ from hadoop.pseudo_hdfs4 import get_db_prefix, is_live_cluster
 from beeswax.design import hql_query
 from beeswax.models import SavedQuery, QueryHistory
 from beeswax.server import dbms
-from beeswax.test_base import get_query_server_config, wait_for_query_to_finish, fetch_query_result_data
+from beeswax.test_base import get_query_server_config, get_test_username, wait_for_query_to_finish, fetch_query_result_data
 from beeswax.tests import _make_query
 
 from impala import conf
@@ -56,7 +56,7 @@ class MockDbms:
 class TestMockedImpala:
 
   def setUp(self):
-    self.client = make_logged_in_client()
+    self.client = make_logged_in_client(username=get_test_username())
 
     # Mock DB calls as we don't need the real ones
     self.prev_dbms = dbms.get
@@ -111,7 +111,7 @@ class TestImpalaIntegration:
     if not is_live_cluster():
       raise SkipTest
 
-    cls.client = make_logged_in_client()
+    cls.client = make_logged_in_client(username=get_test_username())
     cls.user = User.objects.get(username='test')
     add_to_group('test')
     cls.db = dbms.get(cls.user, get_query_server_config(name='impala'))
@@ -220,7 +220,7 @@ class TestImpalaIntegration:
 
 
   def test_get_table_sample(self):
-    client = make_logged_in_client()
+    client = make_logged_in_client(username=get_test_username())
 
     resp = client.get(reverse('impala:get_sample_data', kwargs={'database': self.DATABASE, 'table': 'tweets'}))
     data = json.loads(resp.content)

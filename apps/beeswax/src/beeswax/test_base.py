@@ -398,7 +398,7 @@ class BeeswaxSampleProvider(object):
     if is_live_cluster():
       # Delete test DB and tables
       query_server = get_query_server_config()
-      client = make_logged_in_client()
+      client = make_logged_in_client(username=get_test_username())
       user = User.objects.get(username=get_test_username())
 
       db = dbms.get(user, query_server)
