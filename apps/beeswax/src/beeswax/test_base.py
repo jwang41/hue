@@ -50,7 +50,7 @@ except ImportError, e:
 
 
 HIVE_SERVER_TEST_PORT = find_unused_port()
-HIVE_SENTRY_USER = 'systest'
+HIVE_SENTRY_USER = 'hive'
 
 _INITIALIZED = False
 _SHARED_HIVE_SERVER_PROCESS = None
