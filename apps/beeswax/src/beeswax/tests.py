@@ -2125,7 +2125,7 @@ def test_history_page():
     return resp
 
   do_view('')
-  do_view('q-user=test')
+  do_view('q-user=%s' % get_test_username())
   do_view('q-user=test_who', 0)
   do_view('q-user=:all')
   do_view('q-design_id=%s' % query.id)

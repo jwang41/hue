@@ -28,6 +28,8 @@ from desktop.lib.test_utils import grant_access
 from desktop.models import Directory, Document, Document2
 from hadoop import cluster as originalCluster
 
+from beeswax.test_base import get_test_username
+
 import notebook.connectors.hiveserver2
 
 from notebook.api import _historify
@@ -41,10 +43,10 @@ class TestNotebookApi(object):
     self.client = make_logged_in_client(username="test", groupname="default", recreate=True, is_superuser=False)
     self.client_not_me = make_logged_in_client(username="not_perm_user", groupname="default", recreate=True, is_superuser=False)
 
-    self.user = User.objects.get(username="test")
+    self.user = User.objects.get(username=get_test_username())
     self.user_not_me = User.objects.get(username="not_perm_user")
 
-    grant_access("test", "default", "notebook")
+    grant_access(get_test_username(), "default", "notebook")
     grant_access("not_perm_user", "default", "notebook")
 
     self.notebook_json = """

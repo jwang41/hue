@@ -75,7 +75,7 @@ class TestMockedImpala:
     assert_true('Query Editor' in response.content)
 
   def test_saved_queries(self):
-    user = User.objects.get(username='test')
+    user = User.objects.get(username=get_test_username())
 
     response = self.client.get("/impala/list_designs")
     assert_equal(len(response.context['page'].object_list), 0)
@@ -112,7 +112,7 @@ class TestImpalaIntegration:
       raise SkipTest
 
     cls.client = make_logged_in_client(username=get_test_username())
-    cls.user = User.objects.get(username='test')
+    cls.user = User.objects.get(username=get_test_username())
     add_to_group('test')
     cls.db = dbms.get(cls.user, get_query_server_config(name='impala'))
     cls.DATABASE = get_db_prefix(name='impala')
