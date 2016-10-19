@@ -142,6 +142,10 @@ class TestBeeswaxWithHadoop(BeeswaxSampleProvider):
     return history.id
 
 
+  def _get_hs2_principal(self):
+    return hive_site.get_hiveserver2_kerberos_principal(HIVE_SERVER_HOST.get())
+
+
   def test_query_with_error(self):
     # Creating a table "again" should not work; error should be displayed.
     response = _make_query(self.client, "CREATE TABLE test (foo INT)", database=self.db_name, wait=True)
@@ -1708,7 +1712,11 @@ for x in sys.stdin:
       assert_equal(get_localhost_name(), query_server['server_host'])
 
     assert_equal('hiveserver2', query_server['server_type'])
-    assert_true(query_server['principal'] is None, query_server['principal']) # No default hive/HOST_@TEST.COM so far
+
+    if self._get_hs2_principal():  # Kerberos enabled
+      assert_true(query_server['principal'].startswith(self._get_hs2_principal()), query_server['principal'])
+    else:
+      assert_true(query_server['principal'] is None, query_server['principal']) # No default hive/HOST_@TEST.COM so far
 
 
   def test_select_multi_db(self):
@@ -2971,6 +2979,9 @@ def search_log_line(expected_log, all_logs):
   return re.compile('%(expected_log)s' % {'expected_log': expected_log}).search(all_logs)
 
 def test_hiveserver2_get_security():
+  if is_live_cluster():
+    raise SkipTest  # HUE-5088: Need to add live-cluster + kerb test cases to this
+
   make_logged_in_client(username=get_test_username())
   user = User.objects.get(username=get_test_username())
   # Bad but easy mocking
@@ -3404,6 +3415,9 @@ def test_apply_natural_sort():
                                                             {'name': 'test_200', 'comment': 'Test'}])
 
 def test_hiveserver2_jdbc_url():
+  if is_live_cluster():
+    raise SkipTest  # HUE-5088: Need to add live-cluster + kerb test cases to this
+  
   hostname = socket.getfqdn()
   resets = [
     beeswax.conf.HIVE_SERVER_HOST.set_for_testing(hostname),

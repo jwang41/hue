@@ -386,6 +386,7 @@ class BeeswaxSampleProvider(object):
 
     cls.client = make_logged_in_client(username=get_test_username(), is_superuser=False)
     add_to_group(get_test_username(), 'test')
+    add_to_group(get_test_username(), 'default')
     grant_access(get_test_username(), 'test', 'beeswax')
     grant_access(get_test_username(), 'test', 'metastore')
 
