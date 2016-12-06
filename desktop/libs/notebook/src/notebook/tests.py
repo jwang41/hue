@@ -72,7 +72,8 @@ class TestNotebookApi(object):
     """
 
     self.notebook = json.loads(self.notebook_json)
-    self.doc2 = Document2.objects.create(id=50010, name=self.notebook['name'], type=self.notebook['type'], owner=self.user)
+    self.doc2, created = Document2.objects.get_or_create(id=50010, name=self.notebook['name'],
+                                                         type=self.notebook['type'], owner=self.user)
     self.doc1 = Document.objects.link(self.doc2, owner=self.user, name=self.doc2.name,
                                       description=self.doc2.description, extra=self.doc2.type)
 
