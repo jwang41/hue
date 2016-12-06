@@ -40,7 +40,7 @@ from notebook.decorators import api_error_handler
 class TestNotebookApi(object):
 
   def setUp(self):
-    self.client = make_logged_in_client(username="test", groupname="default", recreate=True, is_superuser=False)
+    self.client = make_logged_in_client(username=get_test_username(), groupname="default", recreate=True, is_superuser=False)
     self.client_not_me = make_logged_in_client(username="not_perm_user", groupname="default", recreate=True, is_superuser=False)
 
     self.user = User.objects.get(username=get_test_username())
